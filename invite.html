@@ -3,6 +3,7 @@
 <head>
   <title>Luxury Wedding Invite</title>
 
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -18,7 +19,7 @@
       overflow: hidden;
     }
 
-    /* FLOATING PARTICLES */
+    /* Background particles */
     body::before {
       content: "";
       position: absolute;
@@ -37,7 +38,7 @@
     .card {
       width: 360px;
       padding: 35px 20px;
-      background: rgba(255,255,255,0.85);
+      background: rgba(255,255,255,0.9);
       backdrop-filter: blur(15px);
       border-radius: 16px;
       text-align: center;
@@ -50,10 +51,7 @@
     }
 
     @keyframes enter {
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+      to { opacity: 1; transform: scale(1); }
     }
 
     .hidden { display: none; }
@@ -164,36 +162,39 @@
 <script>
 const params = new URLSearchParams(window.location.search);
 
-// ADMIN GENERATE
+// ✅ GENERATE LINK (FIXED)
 function generate() {
-  const groom = groom.value;
-  const bride = bride.value;
-  const datetime = datetime.value;
-  const desc = desc.value;
+  const groom = document.getElementById("groom").value;
+  const bride = document.getElementById("bride").value;
+  const datetime = document.getElementById("datetime").value;
+  const desc = document.getElementById("desc").value;
 
-  const link = window.location.href.split("?")[0] +
+  const baseURL = window.location.origin + window.location.pathname;
+
+  const link = baseURL +
     "?groom=" + encodeURIComponent(groom) +
     "&bride=" + encodeURIComponent(bride) +
     "&datetime=" + encodeURIComponent(datetime) +
     "&desc=" + encodeURIComponent(desc);
 
-  linkOutput.innerText = link;
+  document.getElementById("link").innerText = link;
+
   QRCode.toCanvas(document.getElementById("qr"), link);
 }
 
-// LOAD INVITE
+// ✅ LOAD INVITE
 if (params.get("groom")) {
-  admin.classList.add("hidden");
-  invite.classList.remove("hidden");
+  document.getElementById("admin").classList.add("hidden");
+  document.getElementById("invite").classList.remove("hidden");
 
   const groom = params.get("groom");
   const bride = params.get("bride");
   const datetime = new Date(params.get("datetime"));
   const desc = params.get("desc");
 
-  names.innerText = groom + " & " + bride;
-  descText.innerText = desc;
-  dateText.innerText = datetime.toLocaleString();
+  document.getElementById("names").innerText = groom + " & " + bride;
+  document.getElementById("descText").innerText = desc;
+  document.getElementById("dateText").innerText = datetime.toLocaleString();
 
   setInterval(() => {
     const now = new Date();
@@ -203,27 +204,29 @@ if (params.get("groom")) {
     const h = Math.floor((diff / (1000*60*60)) % 24);
     const m = Math.floor((diff / (1000*60)) % 60);
 
-    countdown.innerText = `${d} Days ${h} Hours ${m} Minutes`;
+    document.getElementById("countdown").innerText =
+      `${d} Days ${h} Hours ${m} Minutes`;
   }, 1000);
 }
 
-// TRANSITION TO RSVP
+// ✅ TRANSITION
 function goRSVP() {
-  invite.style.opacity = "0";
+  document.getElementById("invite").style.opacity = "0";
+
   setTimeout(() => {
-    invite.classList.add("hidden");
-    rsvp.classList.remove("hidden");
+    document.getElementById("invite").classList.add("hidden");
+    document.getElementById("rsvp").classList.remove("hidden");
 
     confetti({ particleCount: 200, spread: 120 });
   }, 400);
 }
 
-// FINAL SUBMIT
+// ✅ FINAL THANK YOU
 function submitRSVP() {
-  confetti({ particleCount: 300, spread: 150, origin: { y: 0.6 } });
+  confetti({ particleCount: 300, spread: 150 });
 
   setTimeout(() => {
-    thanks.classList.remove("hidden");
+    document.getElementById("thanks").classList.remove("hidden");
   }, 300);
 }
 </script>
