@@ -29,16 +29,17 @@
       animation: fadeIn 1s ease;
     }
 
-    /* 🌸 Floral Decorations */
+    /* 🌸 CORRECT FLORAL (NO FACE) */
     .card::before {
       content: "";
       position: absolute;
       top: 0;
       left: 0;
-      width: 150px;
-      height: 150px;
-      background: url('https://i.imgur.com/8Km9tLL.png') no-repeat;
+      width: 140px;
+      height: 140px;
+      background: url('https://pngimg.com/uploads/flowers/flowers_PNG102.png') no-repeat;
       background-size: contain;
+      opacity: 0.9;
     }
 
     .card::after {
@@ -46,11 +47,12 @@
       position: absolute;
       bottom: 0;
       right: 0;
-      width: 150px;
-      height: 150px;
-      background: url('https://i.imgur.com/8Km9tLL.png') no-repeat;
-      transform: rotate(180deg);
+      width: 140px;
+      height: 140px;
+      background: url('https://pngimg.com/uploads/flowers/flowers_PNG102.png') no-repeat;
       background-size: contain;
+      transform: rotate(180deg);
+      opacity: 0.9;
     }
 
     @keyframes fadeIn {
@@ -163,7 +165,7 @@
 <script>
 const params = new URLSearchParams(window.location.search);
 
-// GENERATE
+// GENERATE LINK
 function generate() {
   const groom = document.getElementById("groom").value;
   const bride = document.getElementById("bride").value;
@@ -177,22 +179,23 @@ function generate() {
     "&desc=" + encodeURIComponent(desc);
 
   document.getElementById("link").innerText = link;
+
   QRCode.toCanvas(document.getElementById("qr"), link);
 }
 
 // LOAD INVITE
 if (params.get("groom")) {
-  admin.classList.add("hidden");
-  invite.classList.remove("hidden");
+  document.getElementById("admin").classList.add("hidden");
+  document.getElementById("invite").classList.remove("hidden");
 
   const groom = params.get("groom");
   const bride = params.get("bride");
   const datetime = new Date(params.get("datetime"));
   const desc = params.get("desc");
 
-  names.innerText = groom + " & " + bride;
-  descText.innerText = desc;
-  dateText.innerText = datetime.toLocaleString();
+  document.getElementById("names").innerText = groom + " & " + bride;
+  document.getElementById("descText").innerText = desc;
+  document.getElementById("dateText").innerText = datetime.toLocaleString();
 
   setInterval(() => {
     const now = new Date();
@@ -202,14 +205,15 @@ if (params.get("groom")) {
     const h = Math.floor((diff / (1000*60*60)) % 24);
     const m = Math.floor((diff / (1000*60)) % 60);
 
-    countdown.innerText = `${d} Days ${h} Hours ${m} Minutes`;
+    document.getElementById("countdown").innerText =
+      `${d} Days ${h} Hours ${m} Minutes`;
   }, 1000);
 }
 
-// RSVP
+// RSVP FLOW
 function goRSVP() {
-  invite.classList.add("hidden");
-  rsvp.classList.remove("hidden");
+  document.getElementById("invite").classList.add("hidden");
+  document.getElementById("rsvp").classList.remove("hidden");
 
   confetti({ particleCount: 200, spread: 120 });
 }
@@ -218,7 +222,7 @@ function submitRSVP() {
   confetti({ particleCount: 300, spread: 150 });
 
   setTimeout(() => {
-    thanks.classList.remove("hidden");
+    document.getElementById("thanks").classList.remove("hidden");
   }, 300);
 }
 </script>
