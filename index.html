@@ -10,7 +10,7 @@
     body {
       margin: 0;
       font-family: 'Georgia', serif;
-      background: #e6dfd5;
+      background: linear-gradient(135deg,#f5efe6,#e8dfd6);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -19,60 +19,68 @@
 
     .card {
       width: 380px;
-      padding: 50px 25px;
-      background: #fffdf9;
-      border-radius: 10px;
+      padding: 50px 30px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
       text-align: center;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
       position: relative;
       overflow: hidden;
+
       animation: fadeIn 1s ease;
     }
 
-    /* 🌸 CORRECT FLORAL (NO FACE) */
-    .card::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 140px;
-      height: 140px;
-      background: url('https://pngimg.com/uploads/flowers/flowers_PNG102.png') no-repeat;
-      background-size: contain;
-      opacity: 0.9;
-    }
-
+    /* Elegant corner lines (NO IMAGES) */
+    .card::before,
     .card::after {
       content: "";
       position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 140px;
-      height: 140px;
-      background: url('https://pngimg.com/uploads/flowers/flowers_PNG102.png') no-repeat;
-      background-size: contain;
-      transform: rotate(180deg);
-      opacity: 0.9;
+      width: 60px;
+      height: 60px;
+      border: 1.5px solid rgba(180,150,80,0.6);
+    }
+
+    .card::before {
+      top: 15px;
+      left: 15px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .card::after {
+      bottom: 15px;
+      right: 15px;
+      border-left: none;
+      border-top: none;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .hidden { display: none; }
 
     .title {
-      font-size: 12px;
+      font-size: 11px;
       letter-spacing: 2px;
-      color: #777;
+      color: #888;
+      margin-bottom: 10px;
     }
 
     .names {
-      font-size: 26px;
+      font-size: 28px;
       margin: 20px 0;
       font-style: italic;
-      color: #333;
+      color: #2e2e2e;
+    }
+
+    .divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(to right, transparent, gold, transparent);
+      margin: 15px auto;
     }
 
     .desc {
@@ -84,13 +92,14 @@
 
     .date {
       font-size: 14px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
+      color: #444;
     }
 
     #countdown {
-      margin: 15px 0;
+      margin: 10px 0;
       font-weight: bold;
-      color: #444;
+      color: #6b5b3e;
     }
 
     input {
@@ -99,26 +108,32 @@
       border-radius: 8px;
       border: none;
       width: 80%;
-      background: #f3f3f3;
+      background: #f2f2f2;
     }
 
     button {
       padding: 10px 18px;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       margin: 8px;
       cursor: pointer;
       font-weight: bold;
+      transition: 0.3s;
     }
 
-    .yes { background: #3c8d40; color: white; }
+    button:hover {
+      transform: scale(1.05);
+    }
+
+    .yes { background: #4CAF50; color: white; }
     .no { background: #c94c4c; color: white; }
-    .gold { background: linear-gradient(45deg,gold,orange); }
+    .gold { background: linear-gradient(45deg,gold,#d4a017); color: black; }
 
     #thanks {
       margin-top: 20px;
       font-size: 20px;
       animation: fadeIn 1s ease;
+      color: #444;
     }
   </style>
 </head>
@@ -128,12 +143,14 @@
 <!-- ADMIN -->
 <div class="card" id="admin">
   <h3>Create Invite</h3>
+
   <input id="groom" placeholder="Groom Name">
   <input id="bride" placeholder="Bride Name">
   <input id="datetime" placeholder="2026-04-20T18:00">
   <input id="desc" placeholder="Family Description">
 
   <button class="gold" onclick="generate()">Generate</button>
+
   <p id="link"></p>
   <canvas id="qr"></canvas>
 </div>
@@ -143,6 +160,8 @@
   <div class="title">TOGETHER WITH THEIR FAMILIES</div>
 
   <div class="names" id="names"></div>
+
+  <div class="divider"></div>
 
   <div class="desc" id="descText"></div>
 
@@ -157,8 +176,11 @@
 <!-- RSVP -->
 <div class="card hidden" id="rsvp">
   <h3>How many will attend?</h3>
+
   <input id="members" type="number" placeholder="Members">
+
   <button class="gold" onclick="submitRSVP()">Submit</button>
+
   <div id="thanks" class="hidden">❤️ Thank You! See You There ❤️</div>
 </div>
 
@@ -179,7 +201,6 @@ function generate() {
     "&desc=" + encodeURIComponent(desc);
 
   document.getElementById("link").innerText = link;
-
   QRCode.toCanvas(document.getElementById("qr"), link);
 }
 
@@ -210,7 +231,7 @@ if (params.get("groom")) {
   }, 1000);
 }
 
-// RSVP FLOW
+// RSVP
 function goRSVP() {
   document.getElementById("invite").classList.add("hidden");
   document.getElementById("rsvp").classList.remove("hidden");
