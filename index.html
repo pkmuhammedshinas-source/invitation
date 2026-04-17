@@ -3,10 +3,7 @@
 <head>
   <title>Wedding Invitation</title>
 
-  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
-
-  <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -14,31 +11,20 @@
       margin: 0;
       font-family: 'Playfair Display', serif;
       background: #e9e4db;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100vh;
-      overflow: hidden;
     }
 
     /* ADMIN */
     #admin {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .admin-box {
-      background: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
       text-align: center;
     }
 
     input {
       padding: 10px;
-      margin: 8px;
+      margin: 6px;
       width: 200px;
     }
 
@@ -53,12 +39,11 @@
 
     /* INTRO */
     #intro {
+      display: none;
       position: fixed;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       background: black;
       color: white;
-      display: none;
       justify-content: center;
       align-items: center;
       flex-direction: column;
@@ -72,16 +57,11 @@
     }
 
     /* CARD */
-    .card {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    #invite {
+      display: none;
     }
 
-    .invite-box {
+    .card {
       width: 340px;
       padding: 50px 30px;
       background: #fffdf9;
@@ -89,51 +69,29 @@
       text-align: center;
       box-shadow: 0 25px 60px rgba(0,0,0,0.25);
       position: relative;
-      animation: fadeIn 1s ease;
     }
 
-    .invite-box::before {
+    .card::before {
       content: "";
       position: absolute;
       inset: 12px;
       border: 1px solid #d6c7a1;
     }
 
-    .top-text {
-      font-size: 11px;
-      letter-spacing: 3px;
-      color: #8a7f6f;
-    }
-
     .names {
       font-family: 'Great Vibes', cursive;
-      font-size: 44px;
-      margin: 10px 0;
-      color: #2d2d2d;
+      font-size: 42px;
     }
 
     .divider {
-      width: 70px;
+      width: 60px;
       height: 1px;
       background: #d4b26a;
       margin: 20px auto;
     }
 
-    .desc {
-      font-size: 14px;
-      color: #6a6258;
-      line-height: 1.6;
-    }
-
-    .date {
-      margin-top: 20px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-
-    .time {
-      font-size: 14px;
-      margin-top: 5px;
+    .date, .time {
+      margin-top: 10px;
     }
 
     #countdown {
@@ -148,23 +106,7 @@
     /* RSVP */
     #rsvp {
       display: none;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: #e9e4db;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-    }
-
-    #thanks {
-      margin-top: 20px;
-      font-size: 20px;
-    }
-
-    @keyframes fadeIn {
-      from {opacity:0; transform:scale(0.95);}
-      to {opacity:1; transform:scale(1);}
+      text-align: center;
     }
   </style>
 </head>
@@ -173,19 +115,16 @@
 
 <!-- ADMIN -->
 <div id="admin">
-  <div class="admin-box">
-    <h2>Create Invite</h2>
+  <h2>Create Invite</h2>
 
-    <input id="groom" placeholder="Groom Name"><br>
-    <input id="bride" placeholder="Bride Name"><br>
-    <input id="date" type="date"><br>
-    <input id="time" type="time"><br>
-    <input id="desc" placeholder="Description"><br>
+  <input id="groom" placeholder="Groom Name"><br>
+  <input id="bride" placeholder="Bride Name"><br>
+  <input id="date" type="date"><br>
+  <input id="time" type="time"><br>
+  <input id="desc" placeholder="Description"><br>
 
-    <button class="gold" onclick="generate()">Generate</button>
-
-    <p id="link"></p>
-  </div>
+  <button class="gold" onclick="generate()">Generate</button>
+  <p id="link"></p>
 </div>
 
 <!-- INTRO -->
@@ -200,16 +139,14 @@
 </audio>
 
 <!-- INVITE -->
-<div class="card" id="invite">
-  <div class="invite-box">
-
-    <div class="top-text">TOGETHER WITH THEIR FAMILIES</div>
+<div id="invite">
+  <div class="card">
 
     <div class="names" id="names"></div>
 
     <div class="divider"></div>
 
-    <div class="desc" id="descText"></div>
+    <div id="descText"></div>
 
     <div class="date" id="dateText"></div>
     <div class="time" id="timeText"></div>
@@ -225,15 +162,16 @@
 <!-- RSVP -->
 <div id="rsvp">
   <h2>How many will attend?</h2>
-  <input id="members" type="number">
+  <input id="members" type="number"><br>
   <button onclick="submitRSVP()">Submit</button>
   <div id="thanks">❤️ Thank You ❤️</div>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
+let eventDate = null;
 
-// GENERATE
+// GENERATE LINK
 function generate() {
   const groom = document.getElementById("groom").value;
   const bride = document.getElementById("bride").value;
@@ -251,53 +189,65 @@ function generate() {
   document.getElementById("link").innerText = link;
 }
 
-// LOAD INVITE
-let dt;
+// LOAD DATA
 if (params.get("groom")) {
   document.getElementById("admin").style.display = "none";
   document.getElementById("intro").style.display = "flex";
 
-  dt = new Date(params.get("date") + "T" + params.get("time"));
+  const groom = params.get("groom");
+  const bride = params.get("bride");
+  const date = params.get("date");
+  const time = params.get("time");
 
-  document.getElementById("names").innerText =
-    params.get("groom") + " & " + params.get("bride");
+  eventDate = new Date(date + "T" + time);
 
+  document.getElementById("names").innerText = groom + " & " + bride;
   document.getElementById("descText").innerText = params.get("desc");
 
   document.getElementById("dateText").innerText =
-    dt.toLocaleDateString("en-US", { day:"numeric", month:"long", year:"numeric" });
+    eventDate.toDateString();
 
   document.getElementById("timeText").innerText =
-    dt.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" });
+    eventDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  // COUNTDOWN
-  setInterval(() => {
-    const now = new Date();
-    const diff = dt - now;
-
-    if (diff > 0) {
-      const d = Math.floor(diff / (1000*60*60*24));
-      const h = Math.floor((diff / (1000*60*60)) % 24);
-      const m = Math.floor((diff / (1000*60)) % 60);
-
-      document.getElementById("countdown").innerText =
-        `${d} Days ${h} Hours ${m} Minutes`;
-    } else {
-      document.getElementById("countdown").innerText = "Today is the day 🎉";
-    }
-  }, 1000);
+  startCountdown();
 }
 
-// START
+// START INVITE
 function startInvite() {
   document.getElementById("intro").style.display = "none";
-  document.getElementById("music").play();
+  document.getElementById("invite").style.display = "block";
+
+  const music = document.getElementById("music");
+  music.play().catch(() => {});
+}
+
+// COUNTDOWN
+function startCountdown() {
+  if (!eventDate) return;
+
+  setInterval(() => {
+    const now = new Date();
+    const diff = eventDate - now;
+
+    if (diff <= 0) {
+      document.getElementById("countdown").innerText = "Today is the day 🎉";
+      return;
+    }
+
+    const d = Math.floor(diff / (1000*60*60*24));
+    const h = Math.floor((diff / (1000*60*60)) % 24);
+    const m = Math.floor((diff / (1000*60)) % 60);
+
+    document.getElementById("countdown").innerText =
+      `${d} Days ${h} Hours ${m} Minutes`;
+  }, 1000);
 }
 
 // RSVP
 function goRSVP() {
   document.getElementById("invite").style.display = "none";
-  document.getElementById("rsvp").style.display = "flex";
+  document.getElementById("rsvp").style.display = "block";
 
   confetti({ particleCount: 200, spread: 120 });
 }
