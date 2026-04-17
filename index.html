@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Wedding Invite</title>
+  <title>Luxury Wedding Invite</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
 
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -12,130 +12,195 @@
   <style>
     body {
       margin: 0;
-      background: #f5efe6;
+      font-family: 'Playfair Display', serif;
+      background: linear-gradient(135deg,#f5efe6,#e8dfd6);
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      font-family: 'Playfair Display', serif;
     }
 
-    .container {
-      position: relative;
-      width: 400px;
+    .card {
+      width: 380px;
+      padding: 50px 30px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
       text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+      position: relative;
+      animation: fadeIn 1s ease;
     }
 
-    /* 🌸 YOUR PNG FRAME */
-    .frame {
-      width: 100%;
-    }
-
-    /* TEXT OVERLAY */
-    .content {
+    .card::before,
+    .card::after {
+      content: "";
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 70%;
+      width: 60px;
+      height: 60px;
+      border: 1.5px solid rgba(180,150,80,0.6);
     }
+
+    .card::before {
+      top: 15px;
+      left: 15px;
+      border-right: none;
+      border-bottom: none;
+    }
+
+    .card::after {
+      bottom: 15px;
+      right: 15px;
+      border-left: none;
+      border-top: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hidden { display: none; }
 
     .title {
       font-size: 11px;
-      letter-spacing: 2px;
-      color: #777;
+      letter-spacing: 3px;
+      color: #999;
     }
 
-    /* ✨ BIG NAMES */
     .names {
       font-family: 'Great Vibes', cursive;
-      font-size: 38px;
-      margin: 15px 0;
+      font-size: 36px;
+      margin: 20px 0;
       color: #2e2e2e;
     }
 
-    .desc {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 10px;
+    .divider {
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(to right, transparent, gold, transparent);
+      margin: 20px auto;
     }
 
-    .date {
-      font-size: 15px;
+    .desc {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    /* ✨ LUXURY DATE STYLE */
+    .date-box {
+      margin-top: 10px;
+      color: #444;
+    }
+
+    .day {
+      font-size: 14px;
+      letter-spacing: 2px;
+    }
+
+    .big-date {
+      font-size: 28px;
+      margin: 5px 0;
       font-weight: bold;
-      margin-bottom: 10px;
+    }
+
+    .time {
+      font-size: 14px;
+      letter-spacing: 1px;
     }
 
     #countdown {
-      font-size: 13px;
+      margin: 15px 0;
+      font-weight: bold;
       color: #6b5b3e;
-      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 10px;
+      margin: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 80%;
+      background: #f2f2f2;
     }
 
     button {
-      padding: 8px 14px;
+      padding: 10px 18px;
       border: none;
-      border-radius: 8px;
-      margin: 5px;
+      border-radius: 10px;
+      margin: 8px;
       cursor: pointer;
-      font-size: 12px;
+      font-weight: bold;
     }
 
     .yes { background: #4CAF50; color: white; }
     .no { background: #c94c4c; color: white; }
+    .gold { background: linear-gradient(45deg,gold,#d4a017); }
 
-    .hidden { display: none; }
+    #thanks {
+      margin-top: 20px;
+      font-size: 20px;
+    }
   </style>
 </head>
 
 <body>
 
 <!-- ADMIN -->
-<div class="container" id="admin">
-  <input id="groom" placeholder="Groom Name"><br>
-  <input id="bride" placeholder="Bride Name"><br>
-  <input id="date" type="date"><br>
-  <input id="time" type="time"><br>
-  <input id="desc" placeholder="Family Description"><br>
+<div class="card" id="admin">
+  <h3>Create Invite</h3>
 
-  <button onclick="generate()">Generate</button>
+  <input id="groom" placeholder="Groom Name">
+  <input id="bride" placeholder="Bride Name">
+  <input id="date" type="date">
+  <input id="time" type="time">
+  <input id="desc" placeholder="Family Description">
+
+  <button class="gold" onclick="generate()">Generate</button>
 
   <p id="link"></p>
   <canvas id="qr"></canvas>
 </div>
 
 <!-- INVITE -->
-<div class="container hidden" id="invite">
-  <img src="frame.png" class="frame">
+<div class="card hidden" id="invite">
+  <div class="title">TOGETHER WITH THEIR FAMILIES</div>
 
-  <div class="content">
-    <div class="title">TOGETHER WITH THEIR FAMILIES</div>
+  <div class="names" id="names"></div>
 
-    <div class="names" id="names"></div>
+  <div class="divider"></div>
 
-    <div class="desc" id="descText"></div>
+  <div class="desc" id="descText"></div>
 
-    <div class="date" id="dateText"></div>
-
-    <div id="countdown"></div>
-
-    <button class="yes" onclick="goRSVP()">I Will Attend</button>
-    <button class="no">Can't Attend</button>
+  <!-- ✨ LUXURY DATE -->
+  <div class="date-box">
+    <div class="day" id="day"></div>
+    <div class="big-date" id="bigDate"></div>
+    <div class="time" id="timeText"></div>
   </div>
+
+  <div id="countdown"></div>
+
+  <button class="yes" onclick="goRSVP()">I Will Attend</button>
+  <button class="no">Unfortunately I Can't</button>
 </div>
 
 <!-- RSVP -->
-<div class="container hidden" id="rsvp">
+<div class="card hidden" id="rsvp">
   <h3>How many will attend?</h3>
-  <input id="members" type="number"><br>
-  <button onclick="submitRSVP()">Submit</button>
-  <div id="thanks" class="hidden">❤️ Thank You ❤️</div>
+
+  <input id="members" type="number" placeholder="Members">
+
+  <button class="gold" onclick="submitRSVP()">Submit</button>
+
+  <div id="thanks" class="hidden">❤️ Thank You! See You There ❤️</div>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 
-// GENERATE
 function generate() {
   const groom = document.getElementById("groom").value;
   const bride = document.getElementById("bride").value;
@@ -154,7 +219,6 @@ function generate() {
   QRCode.toCanvas(document.getElementById("qr"), link);
 }
 
-// LOAD INVITE
 if (params.get("groom")) {
   admin.classList.add("hidden");
   invite.classList.remove("hidden");
@@ -170,34 +234,41 @@ if (params.get("groom")) {
   names.innerText = groom + " & " + bride;
   descText.innerText = desc;
 
-  dateText.innerText =
-    dt.toLocaleDateString("en-US", { day:"numeric", month:"long", year:"numeric" }) +
-    " at " +
-    dt.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" });
+  day.innerText = dt.toLocaleDateString("en-US", { weekday: "long" });
+  bigDate.innerText = dt.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  timeText.innerText = dt.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit"
+  });
 
   setInterval(() => {
     const now = new Date();
     const diff = dt - now;
 
-    const d = Math.floor(diff/(1000*60*60*24));
-    const h = Math.floor((diff/(1000*60*60))%24);
-    const m = Math.floor((diff/(1000*60))%60);
+    const d = Math.floor(diff / (1000*60*60*24));
+    const h = Math.floor((diff / (1000*60*60)) % 24);
+    const m = Math.floor((diff / (1000*60)) % 60);
 
-    countdown.innerText = `${d}D ${h}H ${m}M`;
-  },1000);
+    countdown.innerText = `${d} Days ${h} Hours ${m} Minutes`;
+  }, 1000);
 }
 
-// RSVP
 function goRSVP() {
   invite.classList.add("hidden");
   rsvp.classList.remove("hidden");
-
   confetti({ particleCount: 200, spread: 120 });
 }
 
 function submitRSVP() {
   confetti({ particleCount: 300, spread: 150 });
-  thanks.classList.remove("hidden");
+  setTimeout(() => {
+    thanks.classList.remove("hidden");
+  }, 300);
 }
 </script>
 
