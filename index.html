@@ -3,7 +3,7 @@
 <head>
   <title>Wedding Invitation</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
@@ -15,6 +15,11 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+    }
+
+    /* HIDE ALL BY DEFAULT */
+    #admin, #intro, #invite, #rsvp {
+      display: none;
     }
 
     /* ADMIN */
@@ -30,25 +35,24 @@
 
     button {
       padding: 10px 16px;
+      border-radius: 6px;
       border: none;
       cursor: pointer;
-      border-radius: 6px;
     }
 
     .gold { background: gold; }
 
     /* INTRO */
     #intro {
-      display: none;
       position: fixed;
       inset: 0;
       background: black;
       color: white;
+      display: flex;
       justify-content: center;
       align-items: center;
       flex-direction: column;
       cursor: pointer;
-      z-index: 10;
     }
 
     #intro h1 {
@@ -57,10 +61,6 @@
     }
 
     /* CARD */
-    #invite {
-      display: none;
-    }
-
     .card {
       width: 340px;
       padding: 50px 30px;
@@ -90,10 +90,6 @@
       margin: 20px auto;
     }
 
-    .date, .time {
-      margin-top: 10px;
-    }
-
     #countdown {
       margin-top: 15px;
       font-size: 13px;
@@ -103,9 +99,7 @@
     .yes { background: #4CAF50; color: white; }
     .no { background: #c94c4c; color: white; }
 
-    /* RSVP */
     #rsvp {
-      display: none;
       text-align: center;
     }
   </style>
@@ -133,23 +127,17 @@
   <p>Tap to Open</p>
 </div>
 
-<!-- MUSIC -->
-<audio id="music" loop>
-  <source src="music.mp3" type="audio/mpeg">
-</audio>
-
 <!-- INVITE -->
 <div id="invite">
   <div class="card">
 
     <div class="names" id="names"></div>
-
     <div class="divider"></div>
 
     <div id="descText"></div>
 
-    <div class="date" id="dateText"></div>
-    <div class="time" id="timeText"></div>
+    <div id="dateText"></div>
+    <div id="timeText"></div>
 
     <div id="countdown"></div>
 
@@ -171,27 +159,12 @@
 const params = new URLSearchParams(window.location.search);
 let eventDate = null;
 
-// GENERATE LINK
-function generate() {
-  const groom = document.getElementById("groom").value;
-  const bride = document.getElementById("bride").value;
-  const date = document.getElementById("date").value;
-  const time = document.getElementById("time").value;
-  const desc = document.getElementById("desc").value;
-
-  const link = window.location.origin + window.location.pathname +
-    "?groom=" + encodeURIComponent(groom) +
-    "&bride=" + encodeURIComponent(bride) +
-    "&date=" + encodeURIComponent(date) +
-    "&time=" + encodeURIComponent(time) +
-    "&desc=" + encodeURIComponent(desc);
-
-  document.getElementById("link").innerText = link;
-}
-
-// LOAD DATA
-if (params.get("groom")) {
-  document.getElementById("admin").style.display = "none";
+// 👉 CONTROL VISIBILITY
+if (!params.get("groom")) {
+  // ADMIN MODE
+  document.getElementById("admin").style.display = "block";
+} else {
+  // INVITE MODE
   document.getElementById("intro").style.display = "flex";
 
   const groom = params.get("groom");
@@ -213,48 +186,52 @@ if (params.get("groom")) {
   startCountdown();
 }
 
+// GENERATE LINK
+function generate() {
+  const link = window.location.origin + window.location.pathname +
+    "?groom=" + groom.value +
+    "&bride=" + bride.value +
+    "&date=" + date.value +
+    "&time=" + time.value +
+    "&desc=" + desc.value;
+
+  document.getElementById("link").innerText = link;
+}
+
 // START INVITE
 function startInvite() {
-  document.getElementById("intro").style.display = "none";
-  document.getElementById("invite").style.display = "block";
-
-  const music = document.getElementById("music");
-  music.play().catch(() => {});
+  intro.style.display = "none";
+  invite.style.display = "block";
 }
 
 // COUNTDOWN
 function startCountdown() {
-  if (!eventDate) return;
-
   setInterval(() => {
-    const now = new Date();
-    const diff = eventDate - now;
+    const diff = eventDate - new Date();
 
     if (diff <= 0) {
-      document.getElementById("countdown").innerText = "Today is the day 🎉";
+      countdown.innerText = "Today 🎉";
       return;
     }
 
     const d = Math.floor(diff / (1000*60*60*24));
-    const h = Math.floor((diff / (1000*60*60)) % 24);
-    const m = Math.floor((diff / (1000*60)) % 60);
+    const h = Math.floor((diff/(1000*60*60))%24);
+    const m = Math.floor((diff/(1000*60))%60);
 
-    document.getElementById("countdown").innerText =
-      `${d} Days ${h} Hours ${m} Minutes`;
-  }, 1000);
+    countdown.innerText = `${d}D ${h}H ${m}M`;
+  },1000);
 }
 
 // RSVP
 function goRSVP() {
-  document.getElementById("invite").style.display = "none";
-  document.getElementById("rsvp").style.display = "block";
-
+  invite.style.display = "none";
+  rsvp.style.display = "block";
   confetti({ particleCount: 200, spread: 120 });
 }
 
 function submitRSVP() {
   confetti({ particleCount: 300, spread: 150 });
-  document.getElementById("thanks").style.display = "block";
+  thanks.style.display = "block";
 }
 </script>
 
