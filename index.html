@@ -20,9 +20,7 @@
     .hidden { display: none; }
 
     /* ADMIN */
-    #admin {
-      text-align: center;
-    }
+    #admin { text-align: center; }
 
     input {
       padding: 10px;
@@ -45,6 +43,7 @@
       height: 200px;
       position: relative;
       cursor: pointer;
+      perspective: 1000px;
     }
 
     .body {
@@ -53,7 +52,6 @@
       background: #f5efe6;
       border: 2px solid #d6c7a1;
       position: absolute;
-      z-index: 1;
     }
 
     .flap {
@@ -61,10 +59,8 @@
       height: 100%;
       background: #e8dfd6;
       position: absolute;
-      top: 0;
       transform-origin: top;
       transition: 0.8s;
-      z-index: 2;
     }
 
     .open .flap {
@@ -73,12 +69,14 @@
 
     /* CARD */
     #invite {
+      display: none;
       opacity: 0;
       transform: scale(0.9);
       transition: 0.8s ease;
     }
 
     #invite.show {
+      display: block;
       opacity: 1;
       transform: scale(1);
     }
@@ -142,7 +140,7 @@
   <input id="desc" placeholder="Description"><br>
 
   <button class="gold" onclick="generate()">Generate</button>
-  <p id="link"></p>
+  <p id="generatedLink"></p>
 </div>
 
 <!-- ENVELOPE -->
@@ -152,7 +150,7 @@
 </div>
 
 <!-- INVITE -->
-<div id="invite" class="hidden">
+<div id="invite">
   <div class="card">
 
     <div class="names" id="names"></div>
@@ -181,37 +179,41 @@
 
 <script>
 const params = new URLSearchParams(window.location.search);
-let eventDate;
+let eventDate = null;
 
-// ADMIN / INVITE SWITCH
+// MODE SWITCH
 if (!params.get("groom")) {
-  admin.style.display = "block";
+  document.getElementById("admin").style.display = "block";
 } else {
-  admin.style.display = "none";
-  envelope.classList.remove("hidden");
+  document.getElementById("admin").style.display = "none";
+  document.getElementById("envelope").classList.remove("hidden");
 
   const dt = new Date(params.get("date") + "T" + params.get("time"));
   eventDate = dt;
 
-  names.innerText = params.get("groom") + " & " + params.get("bride");
-  descText.innerText = params.get("desc");
+  document.getElementById("names").innerText =
+    params.get("groom") + " & " + params.get("bride");
 
-  dateText.innerText = dt.toDateString();
-  timeText.innerText = dt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  document.getElementById("descText").innerText = params.get("desc");
+
+  document.getElementById("dateText").innerText = dt.toDateString();
+  document.getElementById("timeText").innerText =
+    dt.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
 
   startCountdown();
 }
 
-// GENERATE
+// GENERATE LINK (FIXED)
 function generate() {
-  const link = window.location.origin + window.location.pathname +
-    "?groom=" + groom.value +
-    "&bride=" + bride.value +
+  const url =
+    window.location.origin + window.location.pathname +
+    "?groom=" + encodeURIComponent(groom.value) +
+    "&bride=" + encodeURIComponent(bride.value) +
     "&date=" + date.value +
     "&time=" + time.value +
-    "&desc=" + desc.value;
+    "&desc=" + encodeURIComponent(desc.value);
 
-  link.innerText = link;
+  document.getElementById("generatedLink").innerText = url;
 }
 
 // ENVELOPE CLICK
@@ -220,7 +222,7 @@ document.getElementById("envelope").addEventListener("click", function() {
 
   setTimeout(() => {
     this.style.display = "none";
-    invite.classList.remove("hidden");
+    const invite = document.getElementById("invite");
     invite.classList.add("show");
   }, 800);
 });
@@ -231,7 +233,7 @@ function startCountdown() {
     const diff = eventDate - new Date();
 
     if (diff <= 0) {
-      countdown.innerText = "Today 🎉";
+      document.getElementById("countdown").innerText = "Today 🎉";
       return;
     }
 
@@ -239,20 +241,21 @@ function startCountdown() {
     const h = Math.floor((diff/(1000*60*60))%24);
     const m = Math.floor((diff/(1000*60))%60);
 
-    countdown.innerText = `${d} Days ${h} Hours ${m} Minutes`;
+    document.getElementById("countdown").innerText =
+      `${d} Days ${h} Hours ${m} Minutes`;
   },1000);
 }
 
 // RSVP
 function goRSVP() {
-  invite.style.display = "none";
-  rsvp.style.display = "block";
+  document.getElementById("invite").style.display = "none";
+  document.getElementById("rsvp").style.display = "block";
   confetti({ particleCount: 200, spread: 120 });
 }
 
 function submitRSVP() {
   confetti({ particleCount: 300, spread: 150 });
-  thanks.style.display = "block";
+  document.getElementById("thanks").style.display = "block";
 }
 </script>
 
