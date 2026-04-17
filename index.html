@@ -1,143 +1,156 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Luxury Wedding Invite</title>
+  <title>Wedding Invitation</title>
 
   <!-- Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Great+Vibes&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet">
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
     body {
       margin: 0;
       font-family: 'Playfair Display', serif;
-      background: linear-gradient(135deg,#f5efe6,#e8dfd6);
+      background: #e9e4db;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
     }
 
-    .card {
-      width: 380px;
-      padding: 50px 30px;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(12px);
-      border-radius: 16px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-      position: relative;
-      animation: fadeIn 1s ease;
-    }
-
-    .card::before,
-    .card::after {
-      content: "";
+    /* ADMIN */
+    #admin {
       position: absolute;
-      width: 60px;
-      height: 60px;
-      border: 1.5px solid rgba(180,150,80,0.6);
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .admin-box {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    input {
+      padding: 10px;
+      margin: 8px;
+      width: 200px;
+    }
+
+    button {
+      padding: 10px 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .gold {
+      background: gold;
+    }
+
+    /* INTRO */
+    #intro {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: white;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #intro h1 {
+      font-family: 'Great Vibes', cursive;
+      font-size: 40px;
+    }
+
+    /* REAL CARD */
+    .card {
+      width: 360px;
+      padding: 50px 30px;
+      background: #fffdf9;
+      border-radius: 6px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+      text-align: center;
+      position: relative;
+
+      opacity: 0;
+      transform: scale(0.95);
+      transition: 1s ease;
+    }
+
+    .card.show {
+      opacity: 1;
+      transform: scale(1);
     }
 
     .card::before {
-      top: 15px;
-      left: 15px;
-      border-right: none;
-      border-bottom: none;
+      content: "";
+      position: absolute;
+      inset: 10px;
+      border: 1px solid #d6c7a1;
     }
-
-    .card::after {
-      bottom: 15px;
-      right: 15px;
-      border-left: none;
-      border-top: none;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(15px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .hidden { display: none; }
 
     .title {
       font-size: 11px;
       letter-spacing: 3px;
-      color: #999;
+      color: #8a7f6f;
     }
 
     .names {
       font-family: 'Great Vibes', cursive;
-      font-size: 36px;
-      margin: 20px 0;
-      color: #2e2e2e;
+      font-size: 42px;
+      margin: 10px 0;
     }
 
     .divider {
-      width: 80px;
-      height: 2px;
-      background: linear-gradient(to right, transparent, gold, transparent);
+      width: 60px;
+      height: 1px;
+      background: #d4b26a;
       margin: 20px auto;
     }
 
     .desc {
       font-size: 14px;
-      color: #555;
-      line-height: 1.7;
-      margin-bottom: 20px;
+      color: #6a6258;
     }
 
-    /* ✨ LUXURY DATE STYLE */
-    .date-box {
-      margin-top: 10px;
-      color: #444;
-    }
-
-    .day {
-      font-size: 14px;
-      letter-spacing: 2px;
-    }
-
-    .big-date {
-      font-size: 28px;
-      margin: 5px 0;
-      font-weight: bold;
+    .date {
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: 600;
     }
 
     .time {
       font-size: 14px;
-      letter-spacing: 1px;
-    }
-
-    #countdown {
-      margin: 15px 0;
-      font-weight: bold;
-      color: #6b5b3e;
-    }
-
-    input {
-      padding: 10px;
-      margin: 10px;
-      border-radius: 8px;
-      border: none;
-      width: 80%;
-      background: #f2f2f2;
-    }
-
-    button {
-      padding: 10px 18px;
-      border: none;
-      border-radius: 10px;
-      margin: 8px;
-      cursor: pointer;
-      font-weight: bold;
+      margin-top: 5px;
     }
 
     .yes { background: #4CAF50; color: white; }
     .no { background: #c94c4c; color: white; }
-    .gold { background: linear-gradient(45deg,gold,#d4a017); }
+
+    /* RSVP */
+    #rsvp {
+      display: none;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #e9e4db;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
 
     #thanks {
       margin-top: 20px;
@@ -149,23 +162,36 @@
 <body>
 
 <!-- ADMIN -->
-<div class="card" id="admin">
-  <h3>Create Invite</h3>
+<div id="admin">
+  <div class="admin-box">
+    <h2>Create Invite</h2>
 
-  <input id="groom" placeholder="Groom Name">
-  <input id="bride" placeholder="Bride Name">
-  <input id="date" type="date">
-  <input id="time" type="time">
-  <input id="desc" placeholder="Family Description">
+    <input id="groom" placeholder="Groom Name"><br>
+    <input id="bride" placeholder="Bride Name"><br>
+    <input id="date" type="date"><br>
+    <input id="time" type="time"><br>
+    <input id="desc" placeholder="Description"><br>
 
-  <button class="gold" onclick="generate()">Generate</button>
+    <button class="gold" onclick="generate()">Generate</button>
 
-  <p id="link"></p>
-  <canvas id="qr"></canvas>
+    <p id="link"></p>
+  </div>
 </div>
 
+<!-- INTRO -->
+<div id="intro" onclick="startInvite()">
+  <h1>You're Invited</h1>
+  <p>Tap to Open</p>
+</div>
+
+<!-- MUSIC -->
+<audio id="music" loop>
+  <source src="music.mp3" type="audio/mpeg">
+</audio>
+
 <!-- INVITE -->
-<div class="card hidden" id="invite">
+<div class="card" id="invite">
+
   <div class="title">TOGETHER WITH THEIR FAMILIES</div>
 
   <div class="names" id="names"></div>
@@ -174,33 +200,26 @@
 
   <div class="desc" id="descText"></div>
 
-  <!-- ✨ LUXURY DATE -->
-  <div class="date-box">
-    <div class="day" id="day"></div>
-    <div class="big-date" id="bigDate"></div>
-    <div class="time" id="timeText"></div>
-  </div>
-
-  <div id="countdown"></div>
+  <div class="date" id="dateText"></div>
+  <div class="time" id="timeText"></div>
 
   <button class="yes" onclick="goRSVP()">I Will Attend</button>
-  <button class="no">Unfortunately I Can't</button>
+  <button class="no">Can't Attend</button>
+
 </div>
 
 <!-- RSVP -->
-<div class="card hidden" id="rsvp">
-  <h3>How many will attend?</h3>
-
-  <input id="members" type="number" placeholder="Members">
-
-  <button class="gold" onclick="submitRSVP()">Submit</button>
-
-  <div id="thanks" class="hidden">❤️ Thank You! See You There ❤️</div>
+<div id="rsvp">
+  <h2>How many will attend?</h2>
+  <input id="members" type="number">
+  <button onclick="submitRSVP()">Submit</button>
+  <div id="thanks">❤️ Thank You ❤️</div>
 </div>
 
 <script>
 const params = new URLSearchParams(window.location.search);
 
+// GENERATE
 function generate() {
   const groom = document.getElementById("groom").value;
   const bride = document.getElementById("bride").value;
@@ -216,59 +235,44 @@ function generate() {
     "&desc=" + encodeURIComponent(desc);
 
   document.getElementById("link").innerText = link;
-  QRCode.toCanvas(document.getElementById("qr"), link);
 }
 
+// LOAD
 if (params.get("groom")) {
-  admin.classList.add("hidden");
-  invite.classList.remove("hidden");
+  document.getElementById("admin").style.display = "none";
+  document.getElementById("intro").style.display = "flex";
 
-  const groom = params.get("groom");
-  const bride = params.get("bride");
-  const date = params.get("date");
-  const time = params.get("time");
-  const desc = params.get("desc");
+  const dt = new Date(params.get("date") + "T" + params.get("time"));
 
-  const dt = new Date(date + "T" + time);
+  document.getElementById("names").innerText =
+    params.get("groom") + " & " + params.get("bride");
 
-  names.innerText = groom + " & " + bride;
-  descText.innerText = desc;
+  document.getElementById("descText").innerText = params.get("desc");
 
-  day.innerText = dt.toLocaleDateString("en-US", { weekday: "long" });
-  bigDate.innerText = dt.toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  });
+  document.getElementById("dateText").innerText =
+    dt.toLocaleDateString("en-US", { day:"numeric", month:"long", year:"numeric" });
 
-  timeText.innerText = dt.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit"
-  });
-
-  setInterval(() => {
-    const now = new Date();
-    const diff = dt - now;
-
-    const d = Math.floor(diff / (1000*60*60*24));
-    const h = Math.floor((diff / (1000*60*60)) % 24);
-    const m = Math.floor((diff / (1000*60)) % 60);
-
-    countdown.innerText = `${d} Days ${h} Hours ${m} Minutes`;
-  }, 1000);
+  document.getElementById("timeText").innerText =
+    dt.toLocaleTimeString("en-US", { hour:"numeric", minute:"2-digit" });
 }
 
+// START
+function startInvite() {
+  document.getElementById("intro").style.display = "none";
+  document.getElementById("invite").classList.add("show");
+  document.getElementById("music").play();
+}
+
+// RSVP
 function goRSVP() {
-  invite.classList.add("hidden");
-  rsvp.classList.remove("hidden");
+  document.getElementById("invite").style.display = "none";
+  document.getElementById("rsvp").style.display = "flex";
+
   confetti({ particleCount: 200, spread: 120 });
 }
 
 function submitRSVP() {
   confetti({ particleCount: 300, spread: 150 });
-  setTimeout(() => {
-    thanks.classList.remove("hidden");
-  }, 300);
 }
 </script>
 
