@@ -29,35 +29,12 @@
       animation: fadeIn 1s ease;
     }
 
-    .card::before,
-    .card::after {
-      content: "";
-      position: absolute;
-      width: 60px;
-      height: 60px;
-      border: 1.5px solid rgba(180,150,80,0.6);
-    }
-
-    .card::before {
-      top: 15px;
-      left: 15px;
-      border-right: none;
-      border-bottom: none;
-    }
-
-    .card::after {
-      bottom: 15px;
-      right: 15px;
-      border-left: none;
-      border-top: none;
-    }
+    .hidden { display: none; }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(15px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    .hidden { display: none; }
 
     .title {
       font-size: 11px;
@@ -123,6 +100,28 @@
       margin-top: 20px;
       font-size: 20px;
     }
+
+    /* INTRO SCREEN */
+    #intro {
+      position: fixed;
+      inset: 0;
+      background: black;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      cursor: pointer;
+      z-index: 999;
+    }
+
+    #intro h1 {
+      font-size: 40px;
+    }
+
+    #intro p {
+      opacity: 0.7;
+    }
   </style>
 </head>
 
@@ -142,6 +141,12 @@
 
   <p id="link"></p>
   <canvas id="qr"></canvas>
+</div>
+
+<!-- INTRO -->
+<div id="intro" class="hidden" onclick="openInvite()">
+  <h1>You're Invited</h1>
+  <p>Tap to Open</p>
 </div>
 
 <!-- INVITE -->
@@ -196,10 +201,10 @@ function generate() {
   QRCode.toCanvas(document.getElementById("qr"), link);
 }
 
-// LOAD INVITE
+// LOAD INVITE MODE
 if (params.get("groom")) {
   document.getElementById("admin").classList.add("hidden");
-  document.getElementById("invite").classList.remove("hidden");
+  document.getElementById("intro").classList.remove("hidden");
 
   const groom = params.get("groom");
   const bride = params.get("bride");
@@ -209,25 +214,28 @@ if (params.get("groom")) {
 
   const fullDateTime = new Date(date + "T" + time);
 
-  const formattedDate = fullDateTime.toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  });
-
-  const formattedTime = fullDateTime.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit"
-  });
-
   document.getElementById("names").innerText = groom + " & " + bride;
   document.getElementById("descText").innerText = desc;
   document.getElementById("dateText").innerText =
-    formattedDate + " at " + formattedTime;
+    fullDateTime.toLocaleDateString("en-US", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    }) + " at " +
+    fullDateTime.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit"
+    });
 
+  // COUNTDOWN
   setInterval(() => {
     const now = new Date();
     const diff = fullDateTime - now;
+
+    if (diff <= 0) {
+      document.getElementById("countdown").innerText = "Today is the day 🎉";
+      return;
+    }
 
     const d = Math.floor(diff / (1000*60*60*24));
     const h = Math.floor((diff / (1000*60*60)) % 24);
@@ -236,6 +244,12 @@ if (params.get("groom")) {
     document.getElementById("countdown").innerText =
       `${d} Days ${h} Hours ${m} Minutes`;
   }, 1000);
+}
+
+// OPEN INVITE
+function openInvite() {
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("invite").classList.remove("hidden");
 }
 
 // RSVP
