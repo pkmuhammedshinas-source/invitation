@@ -105,44 +105,105 @@ body{font-family:'Jost',sans-serif;background:var(--dark2);color:#e8dcc8;display
 </div>
 
 <script>
-function fmtDate(raw){
-  var d=new Date(raw);
-  if(!isNaN(d.getTime())&&raw.includes('-')) return d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
-  return raw;
+<!-- ONLY IMPORTANT PART SHOWN FULLY FIXED -->
+<script>
+
+// 🔥 AUTO LOAD INVITATION FROM URL (GITHUB LIVE FIX)
+window.addEventListener("DOMContentLoaded", function () {
+  const params = new URLSearchParams(window.location.search);
+
+  if (params.get("bride") && params.get("groom")) {
+    const data = {
+      bride: params.get("bride"),
+      groom: params.get("groom"),
+      date: params.get("date"),
+      rawDate: params.get("date"),
+      time: params.get("time") || "",
+      venue: params.get("venue") || "",
+      rsvp: params.get("rsvp") || "",
+      message: params.get("message") || "",
+      gmaps: params.get("gmaps") || ""
+    };
+
+    const html = buildHTML(data);
+
+    document.open();
+    document.write(html);
+    document.close();
+  }
+});
+
+var currentURL='';
+
+function generate(){
+  var bride=document.getElementById('bride').value.trim();
+  var groom=document.getElementById('groom').value.trim();
+  var rawDate=document.getElementById('wdate').value.trim();
+  var time=document.getElementById('wtime').value.trim();
+  var venue=document.getElementById('venue').value.trim();
+  var rsvp=document.getElementById('rsvp').value.trim();
+  var message=document.getElementById('message').value.trim();
+  var gmaps=document.getElementById('gmaps').value.trim();
+
+  if(!bride||!groom||!rawDate){
+    alert('Please enter both names and the wedding date.');
+    return;
+  }
+
+  var date=fmtDate(rawDate);
+  var data={bride,groom,date,rawDate,time,venue,rsvp,message,gmaps};
+
+  var html=buildHTML(data);
+
+  var params=new URLSearchParams({bride,groom,date});
+  if(time)params.set('time',time);
+  if(venue)params.set('venue',venue);
+  if(rsvp)params.set('rsvp',rsvp);
+  if(message)params.set('message',message);
+  if(gmaps)params.set('gmaps',gmaps);
+
+  // 🔥 FIXED DOMAIN (YOUR REAL LINK)
+  var shareURL='https://pkmuhammedshinas-source.github.io/invitation/?'+params.toString();
+
+  currentURL=shareURL;
+
+  document.getElementById('output').classList.add('visible');
+  document.getElementById('link-display').textContent=shareURL;
+
+  var qrDiv=document.getElementById('qrcode');
+  qrDiv.innerHTML='';
+
+  new QRCode(qrDiv,{
+    text:shareURL,
+    width:118,
+    height:118,
+    colorDark:'#0f0c08',
+    colorLight:'#fdf8ef',
+    correctLevel:QRCode.CorrectLevel.M
+  });
+
+  var esc=html.replace(/"/g,'&quot;');
+
+  document.getElementById('inv-preview').innerHTML=
+  '<iframe style="width:100%;min-height:900px;border:none;display:block" srcdoc="'+esc+'"></iframe>';
+
+  document.getElementById('output').scrollIntoView({
+    behavior:'smooth',
+    block:'start'
+  });
 }
 
-// Convert any Google Maps URL into a safe embed src
-function mapsToEmbed(url){
-  if(!url) return '';
-  url=url.trim();
-  // Already an embed
-  if(url.includes('maps/embed')) return url;
-  // Try to extract place query from various formats
-  var q='';
-  // maps.google.com?q=...
-  var mq=url.match(/[?&]q=([^&]+)/);
-  if(mq) q=decodeURIComponent(mq[1]);
-  // /place/NAME/
-  var mp=url.match(/\/place\/([^/@]+)/);
-  if(mp&&!q) q=decodeURIComponent(mp[1].replace(/\+/g,' '));
-  // @lat,lng
-  var mc=url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-  if(mc&&!q) q=mc[1]+','+mc[2];
-  // goo.gl short links or maps.app.goo.gl — we can't resolve these server-side in a static file,
-  // so fall back to direct link with a note
-  if(!q&&(url.includes('goo.gl')||url.includes('maps.app'))) return '__shortlink__:'+url;
-  if(!q) q=url; // last resort: use as-is
-  return 'https://maps.google.com/maps?q='+encodeURIComponent(q)+'&output=embed&z=16';
+function copyLink(){
+  navigator.clipboard.writeText(currentURL).then(function(){
+    var b=document.querySelector('.copy-btn');
+    b.textContent='Copied!';
+    setTimeout(function(){
+      b.textContent='Copy Link';
+    },2000);
+  });
 }
 
-function buildHTML(data){
-  var msg=data.message||'Together with their families, they joyfully request the honour of your presence at the celebration of their marriage.';
-  var hasCD=data.rawDate&&!isNaN(new Date(data.rawDate+'T00:00:00'));
-  var embedSrc=data.gmaps?mapsToEmbed(data.gmaps):'';
-  var isShortLink=embedSrc.startsWith('__shortlink__:');
-  var shortURL=isShortLink?embedSrc.replace('__shortlink__:',''):'';
-  var directLink=data.gmaps||'';
-
+</script>
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
