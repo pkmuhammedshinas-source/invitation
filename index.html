@@ -106,13 +106,15 @@ body{font-family:'Jost',sans-serif;background:var(--dark2);color:#e8dcc8;display
 
 <script>
 
+var currentURL='';
 
-
-// 🔥 AUTO LOAD INVITATION FROM URL (GITHUB LIVE FIX)
+// 🔥 MODE SWITCH (IMPORTANT)
 window.addEventListener("DOMContentLoaded", function () {
   const params = new URLSearchParams(window.location.search);
 
+  // If link has data → show invitation
   if (params.get("bride") && params.get("groom")) {
+
     const data = {
       bride: params.get("bride"),
       groom: params.get("groom"),
@@ -127,15 +129,15 @@ window.addEventListener("DOMContentLoaded", function () {
 
     const html = buildHTML(data);
 
-    document.open();
-    document.write(html);
-    document.close();
+    // 🔥 CLEAR FULL PAGE & SHOW INVITATION
+    document.body.innerHTML = html;
+
+    return;
   }
 });
 
-var currentURL='';
-
 function generate(){
+
   var bride=document.getElementById('bride').value.trim();
   var groom=document.getElementById('groom').value.trim();
   var rawDate=document.getElementById('wdate').value.trim();
@@ -151,18 +153,13 @@ function generate(){
   }
 
   var date=fmtDate(rawDate);
-  var data={bride,groom,date,rawDate,time,venue,rsvp,message,gmaps};
 
-  var html=buildHTML(data);
+  var params=new URLSearchParams({
+    bride,groom,date,
+    time,venue,rsvp,message,gmaps
+  });
 
-  var params=new URLSearchParams({bride,groom,date});
-  if(time)params.set('time',time);
-  if(venue)params.set('venue',venue);
-  if(rsvp)params.set('rsvp',rsvp);
-  if(message)params.set('message',message);
-  if(gmaps)params.set('gmaps',gmaps);
-
-  // 🔥 FIXED DOMAIN (YOUR REAL LINK)
+  // 🔥 YOUR REAL GITHUB LINK
   var shareURL='https://pkmuhammedshinas-source.github.io/invitation/?'+params.toString();
 
   currentURL=shareURL;
@@ -176,30 +173,19 @@ function generate(){
   new QRCode(qrDiv,{
     text:shareURL,
     width:118,
-    height:118,
-    colorDark:'#0f0c08',
-    colorLight:'#fdf8ef',
-    correctLevel:QRCode.CorrectLevel.M
+    height:118
   });
 
-  var esc=html.replace(/"/g,'&quot;');
-
-  document.getElementById('inv-preview').innerHTML=
-  '<iframe style="width:100%;min-height:900px;border:none;display:block" srcdoc="'+esc+'"></iframe>';
-
-  document.getElementById('output').scrollIntoView({
-    behavior:'smooth',
-    block:'start'
-  });
+  // Preview
+  document.getElementById('inv-preview').innerHTML =
+    '<iframe style="width:100%;min-height:900px;border:none" src="'+shareURL+'"></iframe>';
 }
 
 function copyLink(){
   navigator.clipboard.writeText(currentURL).then(function(){
     var b=document.querySelector('.copy-btn');
     b.textContent='Copied!';
-    setTimeout(function(){
-      b.textContent='Copy Link';
-    },2000);
+    setTimeout(function(){b.textContent='Copy Link'},2000);
   });
 }
 
