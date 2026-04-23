@@ -61,7 +61,7 @@ body{font-family:'Jost',sans-serif;background:var(--dark2);color:#e8dcc8;display
 <div class="studio-top">
   <div class="badge-row">Wedding Invitation Studio</div>
   <h1>The Invitation Atelier</h1>
-  <p>Curtain reveal · Live countdown · RSVP · Location map · Confetti celebration</p>
+  <p>Curtain reveal · Live countdown · RSVP · Location map · Confetti · Works on all phones</p>
 </div>
 
 <div class="panel">
@@ -98,6 +98,7 @@ body{font-family:'Jost',sans-serif;background:var(--dark2);color:#e8dcc8;display
       <div class="link-lbl">Shareable Link</div>
       <div class="link-url" id="link-display"></div>
       <button class="copy-btn" onclick="copyLink()">Copy Link</button>
+      <p style="font-size:10px;color:rgba(255,255,255,0.22);margin-top:8px;line-height:1.55;font-style:italic;">This link opens the full invitation directly on any phone or browser — no app needed. Upload index.html to your GitHub Pages repo and the link works instantly.</p>
     </div>
   </div>
   <div class="prev-lbl">✦ &nbsp; Live Invitation Preview &nbsp; ✦</div>
@@ -513,6 +514,9 @@ function doNo(){
 </html>`;
 }
 
+// ── GITHUB PAGES BASE URL ──
+var BASE_URL='https://pkmuhammedshinas-source.github.io/invitation/';
+
 var currentURL='';
 
 function generate(){
@@ -528,17 +532,22 @@ function generate(){
   var date=fmtDate(rawDate);
   var data={bride,groom,date,rawDate,time,venue,rsvp,message,gmaps};
   var html=buildHTML(data);
-  var params=new URLSearchParams({bride,groom,date});
-  if(time)params.set('time',time);if(venue)params.set('venue',venue);
-  if(rsvp)params.set('rsvp',rsvp);if(message)params.set('message',message);
-  if(gmaps)params.set('gmaps',gmaps);
-  var shareURL='https://yourdomain.com/invite?'+params.toString();
+
+  // ── HASH-BASED LINK: encode all data as base64 in the URL hash ──
+  // This works on ANY static host (GitHub Pages, Netlify, etc.) with zero server logic.
+  // The same index.html reads the hash on load and renders the invitation.
+  var payload=JSON.stringify({bride,groom,date,rawDate,time,venue,rsvp,message,gmaps});
+  var encoded=btoa(unescape(encodeURIComponent(payload)));
+  var shareURL=BASE_URL+'#inv='+encoded;
   currentURL=shareURL;
+
   document.getElementById('output').classList.add('visible');
   document.getElementById('link-display').textContent=shareURL;
+
   var qrDiv=document.getElementById('qrcode');
   qrDiv.innerHTML='';
-  new QRCode(qrDiv,{text:shareURL,width:118,height:118,colorDark:'#0f0c08',colorLight:'#fdf8ef',correctLevel:QRCode.CorrectLevel.M});
+  new QRCode(qrDiv,{text:shareURL,width:118,height:118,colorDark:'#0f0c08',colorLight:'#fdf8ef',correctLevel:QRCode.CorrectLevel.H});
+
   var esc=html.replace(/"/g,'&quot;');
   document.getElementById('inv-preview').innerHTML='<iframe style="width:100%;min-height:900px;border:none;display:block" srcdoc="'+esc+'"></iframe>';
   document.getElementById('output').scrollIntoView({behavior:'smooth',block:'start'});
@@ -547,9 +556,33 @@ function generate(){
 function copyLink(){
   navigator.clipboard.writeText(currentURL).then(function(){
     var b=document.querySelector('.copy-btn');
-    b.textContent='Copied!';setTimeout(function(){b.textContent='Copy Link'},2000);
+    b.textContent='✦ Copied!';setTimeout(function(){b.textContent='Copy Link'},2500);
+  }).catch(function(){
+    // fallback for older mobile browsers
+    var ta=document.createElement('textarea');
+    ta.value=currentURL;ta.style.position='fixed';ta.style.opacity='0';
+    document.body.appendChild(ta);ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+    var b=document.querySelector('.copy-btn');
+    b.textContent='✦ Copied!';setTimeout(function(){b.textContent='Copy Link'},2500);
   });
 }
+
+// ── ON PAGE LOAD: if URL has #inv= hash, render invitation directly ──
+// This is what makes the shared link work on phones.
+(function(){
+  var hash=window.location.hash;
+  if(!hash||hash.indexOf('#inv=')<0) return;
+  try{
+    var encoded=hash.replace('#inv=','');
+    var payload=JSON.parse(decodeURIComponent(escape(atob(encoded))));
+    var html=buildHTML(payload);
+    // Hide the studio form, show the invitation full-screen
+    document.body.innerHTML=html;
+  }catch(e){
+    console.warn('Could not parse invitation hash:',e);
+  }
+})();
 </script>
 </body>
 </html>
