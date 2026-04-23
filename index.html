@@ -158,23 +158,31 @@ html,body{width:100%;min-height:100%}
 body{font-family:'Cormorant Garamond',serif;background:var(--vv);color:var(--cream);overflow-x:hidden}
 
 /* ── CURTAINS ── */
-#cl,#cr{position:fixed;top:0;width:50%;height:100%;z-index:9999;overflow:hidden;
+#cl,#cr{
+  position:fixed;top:0;width:50%;height:100%;z-index:9999;overflow:hidden;
   background:linear-gradient(160deg,#1a0840 0%,#0e0520 55%,#1a0840 100%);
-  transition:transform 1.9s cubic-bezier(0.77,0,0.175,1)}
-#cl{left:0;transform-origin:left}
-#cr{right:0;transform-origin:right}
-#cl.open{transform:translateX(-100%)}
-#cr.open{transform:translateX(100%)}
-.csh{position:absolute;top:0;left:-60%;width:35%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.07),transparent);animation:cshim 3.5s ease-in-out infinite}
+  transition:transform 1.4s cubic-bezier(0.77,0,0.175,1);
+  will-change:transform;-webkit-backface-visibility:hidden;backface-visibility:hidden;
+}
+#cl{left:0;transform-origin:left center}
+#cr{right:0;transform-origin:right center}
+#cl.open{transform:translateX(-101%)}
+#cr.open{transform:translateX(101%)}
+.csh{position:absolute;top:0;left:-60%;width:35%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.07),transparent);animation:cshim 3s ease-in-out infinite}
 @keyframes cshim{0%{left:-60%}100%{left:130%}}
-.cfold{position:absolute;top:0;height:100%;width:16px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,0.05) 5px,rgba(255,255,255,0.05) 7px)}
+.cfold{position:absolute;top:0;height:100%;width:14px;background:repeating-linear-gradient(90deg,transparent,transparent 5px,rgba(255,255,255,0.05) 5px,rgba(255,255,255,0.05) 7px)}
 #cl .cfold{right:0}#cr .cfold{left:0}
-.ctassl{position:absolute;bottom:70px;font-size:26px;color:rgba(201,168,76,0.45)}
-#cl .ctassl{right:14px}#cr .ctassl{left:14px}
-#cbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;text-align:center;pointer-events:none;transition:opacity 0.7s 0.3s}
-#cbadge.gone{opacity:0}
+.ctassl{position:absolute;bottom:70px;font-size:24px;color:rgba(201,168,76,0.4)}
+#cl .ctassl{right:12px}#cr .ctassl{left:12px}
+/* Tap hint on mobile */
+.tap-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em;color:rgba(201,168,76,0.5);text-transform:uppercase;white-space:nowrap;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.4}50%{opacity:0.9}}
+#cbadge{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10000;text-align:center;pointer-events:none;transition:opacity 0.5s}
+#cbadge.gone{opacity:0;pointer-events:none}
 #cbadge h2{font-family:'Cinzel Decorative',serif;font-size:clamp(1rem,3vw,1.6rem);color:var(--g2);letter-spacing:0.12em;text-shadow:0 0 50px rgba(201,168,76,0.5)}
 #cbadge p{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:rgba(255,255,255,0.38);margin-top:0.5rem;letter-spacing:0.1em}
+/* Curtain overlay is also tappable to skip */
+#curtain-overlay{position:fixed;inset:0;z-index:9998;cursor:pointer}
 
 /* ── PETALS ── */
 .pbg{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden;z-index:0}
@@ -259,40 +267,86 @@ body{font-family:'Cormorant Garamond',serif;background:var(--vv);color:var(--cre
 .resp-n .rh{font-family:'Cinzel',serif;font-size:12.5px;color:var(--mut);letter-spacing:0.1em}
 .resp-n .rs{font-style:italic;font-size:13px;color:rgba(122,101,64,0.65);margin-top:0.35rem;line-height:1.65}
 
-/* ── LOCATION PANEL (shown after Yes) ── */
-.loc-panel{background:linear-gradient(175deg,#fffef8,#fdfaee);border:1px solid rgba(201,168,76,0.4);margin-top:0;overflow:hidden;
-  max-height:0;transition:max-height 1s cubic-bezier(0.16,1,0.3,1),opacity 0.8s ease;opacity:0}
-.loc-panel.open{max-height:600px;opacity:1}
-.loc-header{padding:1.5rem 1.75rem 1rem;text-align:center;border-bottom:0.5px solid rgba(201,168,76,0.15);position:relative}
-.loc-header::before,.loc-header::after{content:'';position:absolute;bottom:-0.5px;width:30%;height:0.5px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.4),transparent)}
-.loc-header::before{left:10%}.loc-header::after{right:10%}
-.loc-eyebrow{font-family:'Cinzel',serif;font-size:7.5px;letter-spacing:0.4em;color:var(--gd);text-transform:uppercase;margin-bottom:0.4rem;opacity:0.7}
-.loc-title{font-family:'Cinzel Decorative',serif;font-size:clamp(0.95rem,2.8vw,1.25rem);color:var(--txt);font-weight:400;line-height:1.3}
-.loc-sub{font-style:italic;font-size:13px;color:var(--mut);margin-top:0.3rem}
+/* ── LOCATION PANEL ── */
+.loc-panel{
+  max-width:560px;width:100%;margin-top:2rem;
+  opacity:0;transform:translateY(30px);
+  transition:opacity 0.9s cubic-bezier(0.16,1,0.3,1),transform 0.9s cubic-bezier(0.16,1,0.3,1);
+  pointer-events:none;
+}
+.loc-panel.open{opacity:1;transform:translateY(0);pointer-events:auto}
 
-/* ── MAP FRAME ── */
-.map-wrap{position:relative;margin:0;overflow:hidden}
-.map-wrap::before{content:'';position:absolute;inset:0;border:6px solid rgba(253,248,239,0.95);z-index:2;pointer-events:none}
-.map-wrap::after{content:'';position:absolute;inset:6px;border:0.5px solid rgba(201,168,76,0.25);z-index:2;pointer-events:none}
-.map-frame{width:100%;height:280px;border:none;display:block;filter:sepia(12%) saturate(85%) hue-rotate(5deg)}
-.map-unavail{width:100%;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#faf3d8,#f5ead0);gap:0.75rem}
-.map-unavail svg{opacity:0.35}
-.map-unavail p{font-family:'Cinzel',serif;font-size:9px;letter-spacing:0.2em;color:var(--mut);text-transform:uppercase;opacity:0.7}
+/* Elegant card wrapper */
+.loc-card{
+  background:linear-gradient(175deg,#fffef8 0%,#fdfaee 50%,#faf3d0 100%);
+  border:1px solid rgba(201,168,76,0.4);
+  box-shadow:0 0 0 6px rgba(201,168,76,0.04),0 30px 70px rgba(0,0,0,0.45);
+  position:relative;overflow:hidden;
+}
+.loc-card::before{content:'';position:absolute;inset:8px;border:0.5px solid rgba(201,168,76,0.18);pointer-events:none;z-index:3}
 
-/* ── GOLD ORNAMENT STRIP ── */
-.map-ornament{display:flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.75rem 1.5rem;background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(201,168,76,0.12));border-top:0.5px solid rgba(201,168,76,0.2)}
-.map-ornament span{font-size:10px;color:var(--gold);opacity:0.6;letter-spacing:2px}
-.map-ornament-line{flex:1;height:0.5px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.3),transparent)}
+/* Top banner */
+.loc-banner{
+  background:linear-gradient(135deg,#0e0520,#1a0840,#0e0520);
+  padding:1.75rem 2rem 1.5rem;text-align:center;position:relative;overflow:hidden;
+}
+.loc-banner::after{content:'';position:absolute;bottom:0;left:10%;right:10%;height:0.5px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.5),transparent)}
+.loc-banner-shimmer{position:absolute;top:0;left:-80%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.06),transparent);animation:cshim 4s ease-in-out infinite}
+.loc-eyebrow{font-family:'Cinzel',serif;font-size:7.5px;letter-spacing:0.45em;color:var(--gold);text-transform:uppercase;margin-bottom:0.6rem;opacity:0.85}
+.loc-icon{font-size:22px;margin-bottom:0.5rem;display:block;filter:drop-shadow(0 0 8px rgba(201,168,76,0.4))}
+.loc-title{font-family:'Cinzel Decorative',serif;font-size:clamp(0.9rem,2.8vw,1.2rem);color:var(--g2);font-weight:400;line-height:1.3;letter-spacing:0.03em}
+.loc-date-sub{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:rgba(255,255,255,0.35);margin-top:0.4rem;letter-spacing:0.04em}
 
-/* ── DIRECTIONS BUTTON ── */
-.loc-footer{padding:1.2rem 1.75rem 1.5rem;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0.85rem}
-.dir-btn{display:inline-flex;align-items:center;gap:0.6rem;font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.22em;text-transform:uppercase;
-  background:linear-gradient(135deg,#6b4f0a,var(--gold),var(--g2));color:var(--dk);
-  padding:0.9rem 2rem;cursor:pointer;border:none;text-decoration:none;
-  box-shadow:0 4px 24px rgba(201,168,76,0.3);transition:box-shadow 0.2s,transform 0.15s;font-weight:600}
-.dir-btn:hover{box-shadow:0 8px 36px rgba(201,168,76,0.5);transform:translateY(-2px)}
-.dir-btn svg{width:14px;height:14px;flex-shrink:0}
-.loc-addr{font-style:italic;font-size:13px;color:var(--mut);line-height:1.6;max-width:380px;text-align:center}
+/* Stat pills row */
+.loc-pills{display:flex;justify-content:center;gap:0;border-bottom:0.5px solid rgba(201,168,76,0.15)}
+.loc-pill{flex:1;padding:0.85rem 0.5rem;text-align:center;border-right:0.5px solid rgba(201,168,76,0.12)}
+.loc-pill:last-child{border-right:none}
+.lp-icon{font-size:14px;display:block;margin-bottom:3px}
+.lp-lbl{font-family:'Cinzel',serif;font-size:7px;letter-spacing:0.2em;color:var(--gd);text-transform:uppercase;opacity:0.7;display:block;margin-bottom:2px}
+.lp-val{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:12.5px;color:var(--mut);display:block;line-height:1.3}
+
+/* Map section */
+.map-outer{position:relative;margin:0}
+.map-outer::after{content:'';position:absolute;inset:0;border:8px solid rgba(253,248,239,0.97);z-index:2;pointer-events:none}
+.map-inner-border{position:absolute;inset:8px;border:0.5px solid rgba(201,168,76,0.2);z-index:3;pointer-events:none}
+.map-pin-overlay{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);
+  z-index:4;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;
+  animation:pinBounce 1.5s ease-in-out 0.5s both;
+}
+@keyframes pinBounce{0%{opacity:0;transform:translate(-50%,-120%)}60%{transform:translate(-50%,-95%)}80%{transform:translate(-50%,-105%)}100%{opacity:1;transform:translate(-50%,-100%)}}
+.map-pin-badge{background:linear-gradient(135deg,#6b4f0a,var(--gold));color:var(--dk);font-family:'Cinzel',serif;font-size:8px;letter-spacing:0.15em;text-transform:uppercase;padding:5px 12px;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.3);font-weight:600}
+.map-pin-badge::after{content:'';display:block;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:8px solid var(--gold);margin:0 auto}
+.map-frame{width:100%;height:300px;border:none;display:block;filter:sepia(18%) saturate(80%) contrast(0.95) brightness(0.97)}
+.map-unavail{
+  width:100%;height:200px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#faf3d8,#f5ead0);gap:0.75rem;
+}
+.map-unavail svg{opacity:0.3}
+.map-unavail p{font-family:'Cinzel',serif;font-size:8.5px;letter-spacing:0.2em;color:var(--mut);text-transform:uppercase;opacity:0.7}
+
+/* Bottom action */
+.loc-action{padding:1.5rem 1.75rem 1.75rem;text-align:center;background:linear-gradient(180deg,rgba(253,248,239,1),rgba(250,243,208,0.6))}
+.dir-btn{
+  display:inline-flex;align-items:center;gap:0.65rem;
+  font-family:'Cinzel',serif;font-size:9.5px;letter-spacing:0.25em;text-transform:uppercase;
+  background:linear-gradient(135deg,#5c4309,#8b6914,var(--gold),var(--g2));
+  color:var(--dk);padding:1rem 2.25rem;text-decoration:none;
+  box-shadow:0 6px 28px rgba(201,168,76,0.35),inset 0 1px 0 rgba(255,255,255,0.25);
+  transition:box-shadow 0.2s,transform 0.15s;font-weight:700;
+  -webkit-tap-highlight-color:transparent;
+}
+.dir-btn:hover,.dir-btn:active{box-shadow:0 10px 40px rgba(201,168,76,0.55);transform:translateY(-2px)}
+.dir-btn svg{width:15px;height:15px;flex-shrink:0}
+.loc-addr-row{display:flex;align-items:flex-start;justify-content:center;gap:0.5rem;margin-top:1rem}
+.loc-addr-icon{font-size:13px;margin-top:1px;flex-shrink:0;opacity:0.5}
+.loc-addr-text{font-style:italic;font-size:13px;color:var(--mut);line-height:1.6;text-align:left}
+
+/* Ornament divider */
+.loc-ornament{display:flex;align-items:center;gap:0.5rem;padding:0.6rem 1.5rem;border-top:0.5px solid rgba(201,168,76,0.15);border-bottom:0.5px solid rgba(201,168,76,0.15)}
+.loc-orn-line{flex:1;height:0.5px;background:linear-gradient(90deg,transparent,rgba(201,168,76,0.25),transparent)}
+.loc-orn-txt{font-size:10px;color:rgba(201,168,76,0.45);letter-spacing:4px}
 
 /* ── CONFETTI ── */
 #cc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9998}
@@ -309,7 +363,8 @@ body{font-family:'Cormorant Garamond',serif;background:var(--vv);color:var(--cre
 <body>
 
 <!-- Curtains -->
-<div id="cl"><div class="csh"></div><div class="cfold"></div><div class="ctassl">⚜</div></div>
+<div id="curtain-overlay" onclick="openCurtain()"></div>
+<div id="cl"><div class="csh"></div><div class="cfold"></div><div class="ctassl">⚜</div><div class="tap-hint">Tap to open</div></div>
 <div id="cr"><div class="csh"></div><div class="cfold"></div><div class="ctassl">⚜</div></div>
 <div id="cbadge"><h2>${data.bride} &amp; ${data.groom}</h2><p>An Invitation Awaits</p></div>
 
@@ -392,34 +447,70 @@ body{font-family:'Cormorant Garamond',serif;background:var(--vv);color:var(--cre
 <!-- ── LOCATION PANEL (revealed after Yes) ── -->
 ${embedSrc||directLink?`
 <div class="loc-panel" id="loc-panel">
-  <div class="loc-header">
-    <p class="loc-eyebrow">Find Your Way</p>
-    <div class="loc-title">${data.venue||'Venue Location'}</div>
-    ${data.time?`<div class="loc-sub">${data.date}${data.time?' · '+data.time:''}</div>`:''}
-  </div>
+  <div class="loc-card">
 
-  <div class="map-wrap">
-    ${!isShortLink&&embedSrc
-      ?`<iframe class="map-frame" src="${embedSrc}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
-      :`<div class="map-unavail">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <p>Map preview — click directions to open</p>
-        </div>`
-    }
-  </div>
+    <!-- Dark velvet top banner -->
+    <div class="loc-banner">
+      <div class="loc-banner-shimmer"></div>
+      <p class="loc-eyebrow">Find Your Way to Us</p>
+      <span class="loc-icon">📍</span>
+      <div class="loc-title">${data.venue||'Wedding Venue'}</div>
+      ${data.date?`<div class="loc-date-sub">${data.date}${data.time?' · '+data.time:''}</div>`:''}
+    </div>
 
-  <div class="map-ornament">
-    <div class="map-ornament-line"></div>
-    <span>✦ ✦ ✦</span>
-    <div class="map-ornament-line"></div>
-  </div>
+    <!-- Info pills -->
+    <div class="loc-pills">
+      <div class="loc-pill">
+        <span class="lp-icon">🗓</span>
+        <span class="lp-lbl">Date</span>
+        <span class="lp-val">${data.date||'—'}</span>
+      </div>
+      ${data.time?`<div class="loc-pill">
+        <span class="lp-icon">🕰</span>
+        <span class="lp-lbl">Time</span>
+        <span class="lp-val">${data.time}</span>
+      </div>`:''}
+      <div class="loc-pill">
+        <span class="lp-icon">🏛</span>
+        <span class="lp-lbl">Venue</span>
+        <span class="lp-val">${(data.venue||'').split(',')[0]||'—'}</span>
+      </div>
+    </div>
 
-  <div class="loc-footer">
-    <a class="dir-btn" href="${directLink}" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      Open in Google Maps
-    </a>
-    ${data.venue?`<p class="loc-addr">${data.venue}</p>`:''}
+    <!-- Map -->
+    <div class="map-outer">
+      ${!isShortLink&&embedSrc
+        ?`<iframe class="map-frame" src="${embedSrc}" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+           <div class="map-inner-border"></div>
+           <div class="map-pin-overlay">
+             <div class="map-pin-badge">We are here</div>
+           </div>`
+        :`<div class="map-unavail">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c9a84c" stroke-width="1.3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <p>Open map for directions</p>
+          </div>`
+      }
+    </div>
+
+    <!-- Ornament -->
+    <div class="loc-ornament">
+      <div class="loc-orn-line"></div>
+      <span class="loc-orn-txt">✦ ✦ ✦</span>
+      <div class="loc-orn-line"></div>
+    </div>
+
+    <!-- Action -->
+    <div class="loc-action">
+      <a class="dir-btn" href="${directLink}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Get Directions
+      </a>
+      ${data.venue?`<div class="loc-addr-row">
+        <span class="loc-addr-icon">📌</span>
+        <span class="loc-addr-text">${data.venue}</span>
+      </div>`:''}
+    </div>
+
   </div>
 </div>`:''}
 
@@ -438,15 +529,27 @@ ${embedSrc||directLink?`
   }
 })();
 
-// ── CURTAINS ──
-window.addEventListener('load',function(){
-  setTimeout(function(){document.getElementById('cbadge').classList.add('gone')},1500);
-  setTimeout(function(){
-    document.getElementById('cl').classList.add('open');
-    document.getElementById('cr').classList.add('open');
-    document.getElementById('pg').classList.add('show');
-  },1800);
+// ── CURTAINS — mobile-safe ──
+var curtainDone=false;
+function openCurtain(){
+  if(curtainDone)return;
+  curtainDone=true;
+  var ov=document.getElementById('curtain-overlay');
+  if(ov)ov.style.display='none';
+  document.getElementById('cbadge').classList.add('gone');
+  document.getElementById('cl').classList.add('open');
+  document.getElementById('cr').classList.add('open');
+  document.getElementById('pg').classList.add('show');
+}
+// Auto-open after a short delay — works even if 'load' never fully fires
+document.addEventListener('DOMContentLoaded',function(){
+  setTimeout(openCurtain, 1800);
 });
+// Hard safety net — if DOMContentLoaded is slow, open at 3s no matter what
+setTimeout(openCurtain, 3000);
+// Also open on any touch/click anywhere (mobile friendly)
+document.addEventListener('touchstart',function(){setTimeout(openCurtain,200)},{once:true,passive:true});
+window.addEventListener('load',function(){setTimeout(openCurtain,400)});
 
 // ── COUNTDOWN ──
 ${hasCD?`
@@ -501,9 +604,13 @@ function doYes(){
   document.getElementById('rbtns').style.display='none';
   document.getElementById('ry').classList.add('on');
   blast();setTimeout(blast,900);setTimeout(blast,2200);
-  // Reveal location panel
   var lp=document.getElementById('loc-panel');
-  if(lp){setTimeout(function(){lp.classList.add('open');lp.scrollIntoView({behavior:'smooth',block:'nearest'})},900)}
+  if(lp){
+    setTimeout(function(){
+      lp.classList.add('open');
+      setTimeout(function(){lp.scrollIntoView({behavior:'smooth',block:'start'})},200);
+    },1000);
+  }
 }
 function doNo(){
   document.getElementById('rbtns').style.display='none';
